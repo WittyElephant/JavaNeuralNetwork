@@ -1,5 +1,7 @@
+import java.io.*;
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.DoubleSummaryStatistics;
 import java.util.Random;
 
 /**
@@ -19,7 +21,7 @@ public class NN {
     public NN(int[] array){
         test = 0; //assume we are training;
         learnRate =.2;
-        numEpochs = 5;
+        numEpochs = 6;
         sampleError = 0;
 
 
@@ -72,5 +74,73 @@ public class NN {
 
         return weights;
     }
+
+    public void printWeights()
+    {
+        try {
+            PrintWriter writer = new PrintWriter("JettCarlWeights.txt", "UTF-8");
+            for(double [][] a : weights)
+            {
+                for(double[] b : a)
+                {
+                    for(double c : b)
+                    {
+                        writer.println(c);
+                    }
+                }
+            }
+            writer.close();
+        }
+        catch (FileNotFoundException e)
+        {
+            System.out.println("File not found");
+        }
+        catch (UnsupportedEncodingException e)
+        {
+
+        }
+    }
+
+    public void setWeights()
+    {
+        String fileName = "JettCarlWeights.txt";
+
+        // This will reference one line at a time
+        String line = null;
+
+        try {
+            // FileReader reads text files in the default encoding.
+            FileReader fileReader = new FileReader(fileName);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            for(int i=0; i< weights.length;i++){
+                for(int j=0; j<weights[i].length;j++){
+                    for(int k=0; k<weights[i][j].length;k++){
+                        line = bufferedReader.readLine();
+                        if(line!=null) {
+                            weights[i][j][k] = Double.parseDouble(line);
+                        }
+                    }
+                }
+            }
+            while((line = bufferedReader.readLine()) != null) {
+            }
+
+            // Always close files.
+            bufferedReader.close();
+        }
+        catch(FileNotFoundException ex) {
+            System.out.println(
+                    "Unable to open file '" +
+                            fileName + "'");
+        }
+        catch(IOException ex) {
+            System.out.println(
+                    "Error reading file '"
+                            + fileName + "'");
+            // Or we could just do this:
+            // ex.printStackTrace();
+        }
+    }
+
 
 }

@@ -17,15 +17,53 @@ public class ANN {
     6) cross validation
      */
     public static void main(String [] args) {
+        System.out.println(System.getProperty("user.dir"));
         double[][] Data;
-        // if(args[0] == "-train"){
-        Data = genData();
-        //}
-       /* else{
-        //generate test data
+        boolean train = false;
+        if(args.length > 0) {
+            if (args[0].equals("-train")) {
+                train = true;
+            }
         }
-        */
+        Data = train ? trainData():testData(); //Sets data to either training or testing data
+        //now we create the NN
+        int[] architecture = new int[]{15361, 40, 1};
+        NN nn = new NN(architecture);
+        if(train)
+        {
+            train(Data,nn);        //print these weights to the file
+        }
+        //} //would end the else to the if testing statement at line 49
 
+        else if (args[0].equals("-test")){
+            nn.setWeights();
+            for(int i = 0; i<40; i++)
+            {
+                feedForward(nn, Data[i],-1);
+                double tmp = nn.nodes[nn.nodes.length-1][0];
+                if(tmp >.5)
+                {
+                    System.out.println("MALE " + (tmp*100));
+                }
+                else
+                {
+                    System.out.println("FEMALE " + ((1-tmp)*100));
+                }
+            }
+            /*
+            for each sample
+                Feed forward that sample (label is = -1)
+                if nn.nodes[nn.nodes.length][0] >.5
+                    print man and print confidence
+                else
+                    print woman and confidence
+
+             */
+        }
+    }
+
+    public static void train(double[][] Data, NN nn)
+    {
         //make the output, also populating my index array
         int[] maleIndexes = new int[218];
         int[] femaleIndexes = new int[55];
@@ -42,17 +80,6 @@ public class ANN {
             }
             //finalTestIndexes[i] =i;
         }
-
-        //now we create the NN
-        int[] architecture = new int[]{15361, 40, 1};
-        NN nn = new NN(architecture);
-        /* if(args[0] == "-test"){
-        //read in weights from file
-        }
-        else{
-        //do cross validation stuff below
-        }
-         */
 
         //now we set up for cross validation
         double[] cvErrors = new double[5]; // we have 5 folds
@@ -121,22 +148,7 @@ public class ANN {
 
         //now for the true test run
 
-        nn = train(nn, Data, labels, sections, -1); // the -1 will ensure that all sections get trained on, we will use the las randomization
-        //print these weights to the file
-
-        //} //would end the else to the if testing statement at line 49
-
-        //  if (args[0] == "-test"){
-            /*
-            for each sample
-                Feed forward that sample (label is = -1)
-                if nn.nodes[nn.nodes.length][0] >.5
-                    print man and print confidence
-                else
-                    print woman and confidence
-
-             */
-      //  }
+        train(nn, Data, labels, sections, -1); // the -1 will ensure that all sections get trained on, we will use the las randomization
     }
     public static void weightmap(NN nn){
 
@@ -227,6 +239,7 @@ public class ANN {
             }
             */
         }
+        nn.printWeights();
         return nn;
     }
     public static NN feedForward(NN nn, double[] sample, int label){
@@ -348,15 +361,59 @@ public class ANN {
         sum = sum/errors.length;
         return sum;
     }
-    public static double[][] genData(){
+    public static double[][] testData() {
+        double[][] Data = new double[40][15361];
+        String line;
+        String sampleData;
+
+        File ImageFolder = new File((System.getProperty("user.dir") + File.separator +"Test"));
+        File[] Images = ImageFolder.listFiles();
+        for(int i = 0; i < 40; i++) {
+            for (File image : Images) {
+                try {
+
+                    FileReader fileReader = new FileReader(image);
+
+                    BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+                    sampleData = "";
+                    while ((line = bufferedReader.readLine()) != null) {
+                        //bufferedReader.read();
+                        if (sampleData.equals("")) {
+                            sampleData = line;
+                        } else {
+                            sampleData = sampleData + " " + line;  //convert file to string
+                        }
+                    }
+                    //System.out.println(sampleData.split(" ").length); //Debugger
+                    int count = 0;
+                    for (String k : sampleData.split(" ")) { //for each feature
+                        count++;
+                        //cast to double and put into data for that sample, also div by 255 to scale the thing
+                        Data[i][count] = Double.parseDouble(k) / 255;
+                    }
+
+                    bufferedReader.close();
+                } catch (FileNotFoundException ex) {
+                    System.out.println(
+                            "Unable to open file '" +
+                                    image.getName() + "'");
+                } catch (IOException ex) {
+                    System.out.println(
+                            "Error reading file '"
+                                    + image.getName() + "'");
+                }
+            }
+        }
+        return Data;
+    }
+    public static double[][] trainData(){
         double[][] Data = new double[273][15361];
 
         String line = null;
         String sampleData;
 
-        String pathToMaleImages = new String("C:" + File.separator +"Users" +File.separator + "Carl Glahn" +
-                File.separator + "IdeaProjects" + File.separator + "ANN" + File.separator + "src" + File.separator +
-                "Male");
+        String pathToMaleImages = System.getProperty("user.dir") + File.separator +"Male";
         File maleImageFolder = new File(pathToMaleImages);
         File[] maleImages = maleImageFolder.listFiles();
         int i = 0;
@@ -405,9 +462,7 @@ public class ANN {
             System.out.println("images is null");
         }
 
-        String pathToFemaleImages = new String("C:" + File.separator +"Users" +File.separator + "Carl Glahn" +
-                File.separator + "IdeaProjects" + File.separator + "ANN" + File.separator + "src" + File.separator +
-                "Female");
+        String pathToFemaleImages = System.getProperty("user.dir")+ File.separator +"Female";
         File femaleImageFolder = new File(pathToFemaleImages);
         File[] femaleImages = femaleImageFolder.listFiles();
         if (femaleImages != null) {
