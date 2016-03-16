@@ -39,7 +39,7 @@ public class ANN {
             nn.setWeights();
             for(int i = 0; i<40; i++)
             {
-                feedForward(nn, Data[i],-1);
+                nn = feedForward(nn, Data[i],-1);
                 double tmp = nn.nodes[nn.nodes.length-1][0];
                 if(tmp >.5)
                 {
@@ -148,7 +148,8 @@ public class ANN {
 
         //now for the true test run
 
-        train(nn, Data, labels, sections, -1); // the -1 will ensure that all sections get trained on, we will use the las randomization
+        nn = train(nn, Data, labels, sections, -1); // the -1 will ensure that all sections get trained on, we will use the las randomization
+        nn.printWeights();
     }
     public static void weightmap(NN nn){
 
@@ -166,7 +167,7 @@ public class ANN {
                         noteables.add("weight " + k + "of node "+ j + "of layer " + i);
                     }
                     else{}
-                   // System.out.print(nn.weights[i][j][k] + " ");
+                    // System.out.print(nn.weights[i][j][k] + " ");
 
                 }
                 //System.out.println();
@@ -191,7 +192,7 @@ public class ANN {
         }
         return MSE(testErrors);
         //if(print == 1){
-            //jett you fill in this part
+        //jett you fill in this part
         //}
     }
     public static NN train(NN nn, double[][]data, int []labels, int[][] indexes, int validationSection){
@@ -239,7 +240,7 @@ public class ANN {
             }
             */
         }
-        nn.printWeights();
+
         return nn;
     }
     public static NN feedForward(NN nn, double[] sample, int label){
@@ -368,7 +369,8 @@ public class ANN {
 
         File ImageFolder = new File((System.getProperty("user.dir") + File.separator +"Test"));
         File[] Images = ImageFolder.listFiles();
-        for(int i = 0; i < 40; i++) {
+        int i = 0;
+        if (Images != null) {
             for (File image : Images) {
                 try {
 
@@ -388,9 +390,10 @@ public class ANN {
                     //System.out.println(sampleData.split(" ").length); //Debugger
                     int count = 0;
                     for (String k : sampleData.split(" ")) { //for each feature
-                        count++;
+
                         //cast to double and put into data for that sample, also div by 255 to scale the thing
                         Data[i][count] = Double.parseDouble(k) / 255;
+                        count++;
                     }
 
                     bufferedReader.close();
@@ -403,7 +406,12 @@ public class ANN {
                             "Error reading file '"
                                     + image.getName() + "'");
                 }
+                i++;
             }
+
+        }
+        else{
+            System.out.println("Test images is null");
         }
         return Data;
     }
@@ -439,9 +447,10 @@ public class ANN {
                     //System.out.println(sampleData.split(" ").length); //Debugger
                     int count = 0;
                     for (String k : sampleData.split(" ")) { //for each feature
-                        count++;
+
                         //cast to double and put into data for that sample, also div by 255 to scale the thing
                         Data[i][count] = Double.parseDouble(k)/255;
+                        count++;
                     }
 
                     bufferedReader.close();
@@ -459,7 +468,7 @@ public class ANN {
             }
         }
         else{
-            System.out.println("images is null");
+            System.out.println("male images is null");
         }
 
         String pathToFemaleImages = System.getProperty("user.dir")+ File.separator +"Female";
@@ -486,9 +495,10 @@ public class ANN {
                     //System.out.println(sampleData.split(" ").length); //Debugger
                     int count = 0;
                     for (String k : sampleData.split(" ")) { //for each feature
-                        count++;
+
                         //cast to double and put into data for that sample, also div by 255 to scale the thing
                         Data[i][count] = Double.parseDouble(k)/255;
+                        count++;
                     }
 
                     bufferedReader.close();
@@ -506,7 +516,7 @@ public class ANN {
             }
         }
         else{
-            System.out.println("images is null");
+            System.out.println(" femaleimages is null");
         }
         return Data;
     }

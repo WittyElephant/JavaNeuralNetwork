@@ -21,7 +21,7 @@ public class NN {
     public NN(int[] array){
         test = 0; //assume we are training;
         learnRate =.2;
-        numEpochs = 6;
+        numEpochs = 5;
         sampleError = 0;
 
 
@@ -29,7 +29,7 @@ public class NN {
         weights = new double[array.length-1][][];
         nodes = new double[array.length][];
         for(int i = 1; i<array.length; i++){ //dont make stuff for the input layer
-                weights[i-1] = new double[array[i-1]+1][array[i]]; //no +1 for the final layer
+            weights[i-1] = new double[array[i-1]+1][array[i]]; //no +1 for the final layer
 
         }
         for(int i = 0; i <array.length; i++){
@@ -42,7 +42,7 @@ public class NN {
         }
 
         // setting the random weights
-       weights = initWeights();
+        weights = initWeights();
 
         //now we have to populate the nn
         /*
